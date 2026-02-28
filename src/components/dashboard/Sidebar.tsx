@@ -18,7 +18,7 @@ const adminNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Pesanan Laundry", href: "/dashboard/orders", icon: Shirt },
   { name: "Manajemen Layanan", href: "/dashboard/services", icon: WashingMachine },
-  { name: "Pelanggan", href: "/dashboard/users", icon: Users },
+  { name: "Pelanggan", href: "/dashboard/customers", icon: Users },
   { name: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
 
