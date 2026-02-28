@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(USER)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  name          String
+  phone         String   @unique
+  email         String?
+  address       String?  @db.Text
+  loyaltyPoints Int      @default(0)
+  totalSpend    Decimal  @default(0) @db.Decimal(10, 2)
+  orders        Order[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Service {
+  id          Int         @id @default(autoincrement())
+  name        String
+  price       Decimal     @db.Decimal(10, 2)
+  unit        String      @default("kg") // kg, pcs, etc.
+  description String?     @db.Text
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  customerId    Int
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  items         OrderItem[]
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  status        OrderStatus   @default(RECEIVED)
+  paymentStatus PaymentStatus @default(UNPAID)
+  paymentMethod PaymentMethod?
+  notes         String?       @db.Text
+  dueDate       DateTime?
+  startTime     DateTime?
+  endTime       DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  serviceId Int
+  service   Service  @relation(fields: [serviceId], references: [id])
+  quantity  Float    @default(1)
+  price     Decimal  @db.Decimal(10, 2) // Snapshotted price at order time
+}
+
+enum OrderStatus {
+  RECEIVED
+  WASHING
+  DRYING
+  IRONING
+  READY
+  PICKED_UP
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIAL
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+  TRANSFER
+  DEBIT
+}
